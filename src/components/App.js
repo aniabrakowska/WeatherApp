@@ -80,6 +80,12 @@ class App extends Component {
         }
     }
 
+    handleClickHints = (value) => {
+        this.setState(prevState => ({
+            value: value,
+        }))
+    }
+
     render() {
         return (
             <div className="App">
@@ -89,7 +95,7 @@ class App extends Component {
                 />
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
                     {this.state.cities.map(city =>
-                        <Hints key={city.id} name={city.name} />
+                        <Hints key={city.id} name={city.name} click={this.handleClickHints} />
                     )}
                 </div>
                 {<Result weather={this.state} />}
