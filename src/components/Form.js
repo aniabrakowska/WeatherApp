@@ -1,10 +1,14 @@
 import React from "react";
 
 const Form = props => {
-    return(
+    return (
         <>
             <form>
-                <input type="text" value={props.value} onChange={props.change} />
+                <input
+                    type="text"
+                    value={props.value}
+                    onChange={props.change}
+                />
             </form>
         </>
     );

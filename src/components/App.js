@@ -8,6 +8,9 @@ const APIkey = '0d7f7329e2ba91c249607dd69235f472';
 const citiesList = require('../city.list.json');
 const citiesListPL = citiesList.filter(city => city.country === "PL");
 
+let lat = 52.2298;
+let lon = 21.0118;
+
 class App extends Component {
 
 
@@ -24,12 +27,93 @@ class App extends Component {
         cities: [],
         lat: '',
         lon: '',
+        reset: true,
     };
 
     handleChangeValue = e => {
         this.setState({
             value: e.target.value,
+            reset: true,
         });
+    }
+
+    getCurrentPosition = () => {
+        if (navigator.geolocation) {
+            return new Promise(
+                (resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject)
+            )
+        }
+    }
+
+    componentDidMount = () => {
+
+        this.getCurrentPosition()
+            .then((position) => {
+
+                const API = `https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&lang=pl&appid=${APIkey}&units=metric`;
+
+                fetch(API)
+                    .then(response => {
+                        if (response.ok) {
+                            return response;
+                        }
+                        throw Error('nie udało się')
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const time = new Date().toLocaleString();
+                        this.setState(prevState => ({
+                            err: false,
+                            date: time,
+                            city: data.name,
+                            sunrise: data.sys.sunrise,
+                            sunset: data.sys.sunset,
+                            temp: data.main.temp,
+                            pressure: data.main.pressure,
+                            wind: data.wind.speed,
+                        }))
+                    })
+                    .catch(err => {
+                        this.setState(prevState => ({
+                            err: true,
+                            city: this.state.value
+                        }))
+                    })
+            })
+            .catch(err => {
+
+                const API = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&lang=pl&appid=${APIkey}&units=metric`;
+
+                fetch(API)
+                    .then(response => {
+                        if (response.ok) {
+                            return response;
+                        }
+                        throw Error('nie udało się')
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const time = new Date().toLocaleString();
+                        this.setState(prevState => ({
+                            err: false,
+                            date: time,
+                            city: data.name,
+                            sunrise: data.sys.sunrise,
+                            sunset: data.sys.sunset,
+                            temp: data.main.temp,
+                            pressure: data.main.pressure,
+                            wind: data.wind.speed,
+                        }))
+                    })
+                    .catch(err => {
+                        this.setState(prevState => ({
+                            err: true,
+                            city: this.state.value
+                        }))
+                    })
+            }
+            )
+
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -45,45 +129,45 @@ class App extends Component {
                     cities: [],
                 }))
             }
-
-
-            const API = `https://api.openweathermap.org/data/2.5/weather?q=${this.state.value}&appid=${APIkey}&units=metric`;
-
-            fetch(API)
-                .then(response => {
-                    if (response.ok) {
-                        return response;
-                    }
-                    throw Error('nie udało się')
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // console.log(data);
-                    const time = new Date().toLocaleString();
-                    this.setState(prevState => ({
-                        err: false,
-                        date: time,
-                        city: this.state.value,
-                        sunrise: data.sys.sunrise,
-                        sunset: data.sys.sunset,
-                        temp: data.main.temp,
-                        pressure: data.main.pressure,
-                        wind: data.wind.speed,
-                    }))
-                })
-                .catch(err => {
-                    this.setState(prevState => ({
-                        err: true,
-                        city: this.state.value
-                    }))
-                })
         }
     }
 
-    handleClickHints = (value) => {
+    handleClickHint = city => {
+
         this.setState(prevState => ({
-            value: value,
+            reset: false,
+            value: ''
         }))
+
+        const API = `https://api.openweathermap.org/data/2.5/weather?q=${city}&lang=pl&appid=${APIkey}&units=metric`;
+
+        fetch(API)
+            .then(response => {
+                if (response.ok) {
+                    return response;
+                }
+                throw Error('nie udało się')
+            })
+            .then(response => response.json())
+            .then(data => {
+                const time = new Date().toLocaleString();
+                this.setState(prevState => ({
+                    err: false,
+                    date: time,
+                    city: city,
+                    sunrise: data.sys.sunrise,
+                    sunset: data.sys.sunset,
+                    temp: data.main.temp,
+                    pressure: data.main.pressure,
+                    wind: data.wind.speed,
+                }))
+            })
+            .catch(err => {
+                this.setState(prevState => ({
+                    err: true,
+                    city: this.state.value
+                }))
+            })
     }
 
     render() {
@@ -93,12 +177,14 @@ class App extends Component {
                     value={this.state.value}
                     change={this.handleChangeValue}
                 />
-                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-                    {this.state.cities.map(city =>
-                        <Hints key={city.id} name={city.name} click={this.handleClickHints} />
-                    )}
-                </div>
-                {<Result weather={this.state} />}
+                {this.state.reset ?
+                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        {this.state.cities.map(city =>
+                            <Hints key={city.id} name={city.name} click={this.handleClickHint} />
+                        )}
+                    </div>
+                    : null}
+                <Result weather={this.state} />
             </div>
         );
     }
