@@ -1,9 +1,10 @@
 import React from "react";
+import style from './Hints.module.scss';
 
 const Hints = props => {
     return (
         <div
-            style={{ margin: '.5rem', border: '1px solid #000', padding: '.5rem' }}
+            className={style.hintsItem}
             onClick={() => props.click(props.name)}
         >
             {props.name}

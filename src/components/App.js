@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './App.css';
+import style from './App.module.scss';
 import Form from './Form';
 import Result from './Result';
 import Hints from './Hints';
@@ -18,11 +18,16 @@ class App extends Component {
         value: '',
         data: '',
         city: '',
+        icon: '',
+        description: '',
         sunrise: '',
         sunset: '',
         temp: '',
+        tempFeels: '',
         pressure: '',
+        humidity: '',
         wind: '',
+        clouds: '',
         err: false,
         cities: [],
         lat: '',
@@ -30,7 +35,12 @@ class App extends Component {
         reset: true,
     };
 
+    handleSubmit = e => {
+        e.preventDefault()
+    }
+
     handleChangeValue = e => {
+        e.preventDefault()
         this.setState({
             value: e.target.value,
             reset: true,
@@ -61,16 +71,24 @@ class App extends Component {
                     })
                     .then(response => response.json())
                     .then(data => {
-                        const time = new Date().toLocaleString();
+                        const time = new Date();
+                        const formatTime = `${time.getDate()}.${time.getMonth()}.${time.getFullYear()}`;
                         this.setState(prevState => ({
                             err: false,
-                            date: time,
+                            date: formatTime,
                             city: data.name,
                             sunrise: data.sys.sunrise,
                             sunset: data.sys.sunset,
                             temp: data.main.temp,
+                            tempFeels: data.main.feels_like,
                             pressure: data.main.pressure,
+                            humidity: data.main.humidity,
                             wind: data.wind.speed,
+                            clouds: data.clouds.all,
+                            icon: data.weather[0].icon,
+                            description: data.weather[0].description,
+                            lat: data.coord.lat,
+                            lon: data.coord.lon,
                         }))
                     })
                     .catch(err => {
@@ -93,16 +111,24 @@ class App extends Component {
                     })
                     .then(response => response.json())
                     .then(data => {
-                        const time = new Date().toLocaleString();
+                        const time = new Date();
+                        const formatTime = `${time.getDate()}.${time.getMonth()}.${time.getFullYear()}`;
                         this.setState(prevState => ({
                             err: false,
-                            date: time,
+                            date: formatTime,
                             city: data.name,
                             sunrise: data.sys.sunrise,
                             sunset: data.sys.sunset,
                             temp: data.main.temp,
+                            tempFeels: data.main.feels_like,
                             pressure: data.main.pressure,
+                            humidity: data.main.humidity,
                             wind: data.wind.speed,
+                            clouds: data.clouds.all,
+                            icon: data.weather[0].icon,
+                            description: data.weather[0].description,
+                            lat: data.coord.lat,
+                            lon: data.coord.lon,
                         }))
                     })
                     .catch(err => {
@@ -111,8 +137,7 @@ class App extends Component {
                             city: this.state.value
                         }))
                     })
-            }
-            )
+            })
 
     }
 
@@ -150,16 +175,24 @@ class App extends Component {
             })
             .then(response => response.json())
             .then(data => {
-                const time = new Date().toLocaleString();
-                this.setState(prevState => ({
+                const time = new Date();
+                const formatTime = `${time.getDate()}.${time.getMonth()}.${time.getFullYear()}`;
+                this.setState(() => ({
                     err: false,
-                    date: time,
+                    date: formatTime,
                     city: city,
                     sunrise: data.sys.sunrise,
                     sunset: data.sys.sunset,
                     temp: data.main.temp,
+                    tempFeels: data.main.feels_like,
                     pressure: data.main.pressure,
+                    humidity: data.main.humidity,
                     wind: data.wind.speed,
+                    clouds: data.clouds.all,
+                    icon: data.weather[0].icon,
+                    description: data.weather[0].description,
+                    lat: data.coord.lat,
+                    lon: data.coord.lon,
                 }))
             })
             .catch(err => {
@@ -172,13 +205,14 @@ class App extends Component {
 
     render() {
         return (
-            <div className="App">
+            <div className={style.container}>
                 <Form
                     value={this.state.value}
                     change={this.handleChangeValue}
+                    submit={this.handleSubmit}
                 />
                 {this.state.reset ?
-                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <div className={style.hints}>
                         {this.state.cities.map(city =>
                             <Hints key={city.id} name={city.name} click={this.handleClickHint} />
                         )}
