@@ -21,7 +21,7 @@ const Result = props => {
             <div className={style.resultContainer}>
                 <div className={style.resultMainWeather}>
                     <div className={style.resultMainWeatherIcon}>
-                        <img src={`http://serwer142787.lh.pl/images/weatherapp/${icon}.png`} alt="icon" />
+                        <img src={`https://recipesbook.aniabrakowska.wroclaw.pl/weatherapp/${icon}.png`} alt="icon" />
                     </div>
                     <div className={style.resultMainWeatherInfo}>
                         <h2 className={style.resultCity}>{city}</h2>
